@@ -99,11 +99,11 @@ Instead of returning error codes mixed with data, use a result structure:
 ```c
 typedef struct {
     StringError error;
-    char* data;
+    char *data;
     size_t length;
 } StringResult;
 
-StringResult string_duplicate(const char* src);
+StringResult string_duplicate(const char *src);
 ```
 
 ### 2. Explicit Resource Management
@@ -121,7 +121,7 @@ if (result.error == STR_OK) {
 Safe operations with maximum length parameters:
 
 ```c
-StringResult string_length(const char* str, size_t max_len);
+StringResult string_length(const char *str, size_t max_len);
 ```
 
 ### 4. Null-Safe Operations
