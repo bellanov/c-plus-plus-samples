@@ -1,168 +1,162 @@
-#include <cstring>
+#include "string_utils.hpp"
 #include <gtest/gtest.h>
-
-extern "C"
-{
-#include "string_utils.h"
-}
 
 class StringUtilsTest : public ::testing::Test
 {
   protected:
+    void SetUp() override
+    {
+        // Setup code if needed
+    }
+
     void TearDown() override
     {
-        // Cleanup is handled by individual tests
+        // Cleanup is automatic with std::string
     }
 };
 
+// Duplicate tests
 TEST_F(StringUtilsTest, DuplicateSuccessful)
 {
-    const char *original = "Hello, World!";
-    StringResult result = string_duplicate(original);
+    std::string original = "Hello, World!";
+    std::string result = StringUtils::duplicate(original);
 
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_EQ(result.length, std::strlen(original));
-    EXPECT_STREQ(result.data, original);
-
-    string_result_free(&result);
-}
-
-TEST_F(StringUtilsTest, DuplicateNullPointer)
-{
-    StringResult result = string_duplicate(nullptr);
-
-    EXPECT_EQ(result.error, STR_NULL_POINTER);
-    EXPECT_EQ(result.data, nullptr);
-    EXPECT_EQ(result.length, 0);
+    EXPECT_EQ(result, original);
+    EXPECT_EQ(result.length(), original.length());
 }
 
 TEST_F(StringUtilsTest, DuplicateEmptyString)
 {
-    const char *empty = "";
-    StringResult result = string_duplicate(empty);
-
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_EQ(result.length, 0);
-    EXPECT_STREQ(result.data, "");
-
-    string_result_free(&result);
+    EXPECT_THROW(StringUtils::duplicate(""), StringException);
 }
 
+// Concatenate tests
 TEST_F(StringUtilsTest, ConcatSuccessful)
 {
-    const char *str1 = "Hello";
-    const char *str2 = "World";
-    StringResult result = string_concat(str1, str2);
+    std::string str1 = "Hello";
+    std::string str2 = "World";
+    std::string result = StringUtils::concat(str1, str2);
 
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_STREQ(result.data, "HelloWorld");
-    EXPECT_EQ(result.length, std::strlen(str1) + std::strlen(str2));
-
-    string_result_free(&result);
+    EXPECT_EQ(result, "HelloWorld");
+    EXPECT_EQ(result.length(), str1.length() + str2.length());
 }
 
-TEST_F(StringUtilsTest, ConcatNullPointer)
+TEST_F(StringUtilsTest, ConcatNullFirstString)
 {
-    const char *str1 = "Hello";
-    StringResult result1 = string_concat(nullptr, str1);
-    EXPECT_EQ(result1.error, STR_NULL_POINTER);
-
-    StringResult result2 = string_concat(str1, nullptr);
-    EXPECT_EQ(result2.error, STR_NULL_POINTER);
+    EXPECT_THROW(StringUtils::concat("", "World"), StringException);
 }
 
-TEST_F(StringUtilsTest, ConcatEmptyStrings)
+TEST_F(StringUtilsTest, ConcatNullSecondString)
 {
-    const char *empty = "";
-    StringResult result = string_concat(empty, empty);
-
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_STREQ(result.data, "");
-    EXPECT_EQ(result.length, 0);
-
-    string_result_free(&result);
+    EXPECT_THROW(StringUtils::concat("Hello", ""), StringException);
 }
 
+// Length tests
 TEST_F(StringUtilsTest, LengthSuccessful)
 {
-    const char *str = "Hello";
-    StringResult result = string_length(str, 100);
+    std::string str = "Hello";
+    size_t result = StringUtils::length(str);
 
-    ASSERT_EQ(result.error, STR_OK);
-    EXPECT_EQ(result.length, std::strlen(str));
+    EXPECT_EQ(result, 5);
 }
 
-TEST_F(StringUtilsTest, LengthNullPointer)
+TEST_F(StringUtilsTest, LengthEmptyString)
 {
-    StringResult result = string_length(nullptr, 100);
-    EXPECT_EQ(result.error, STR_NULL_POINTER);
+    EXPECT_THROW(StringUtils::length(""), StringException);
 }
 
-TEST_F(StringUtilsTest, LengthInvalidMaxLen)
+TEST_F(StringUtilsTest, LengthExceedsMaxLength)
 {
-    const char *str = "Hello";
-    StringResult result = string_length(str, 0);
-    EXPECT_EQ(result.error, STR_INVALID_LENGTH);
+    std::string str = "This is a very long string that exceeds the maximum";
+    EXPECT_THROW(StringUtils::length(str, 10), StringException);
 }
 
-TEST_F(StringUtilsTest, LengthBufferOverflow)
-{
-    const char *str = "Hello";
-    StringResult result = string_length(str, 3);
-    EXPECT_EQ(result.error, STR_BUFFER_OVERFLOW);
-}
-
+// Reverse tests
 TEST_F(StringUtilsTest, ReverseSuccessful)
 {
-    const char *original = "Hello";
-    StringResult result = string_reverse(original);
+    std::string original = "Hello";
+    std::string result = StringUtils::reverse(original);
 
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_STREQ(result.data, "olleH");
-    EXPECT_EQ(result.length, std::strlen(original));
-
-    string_result_free(&result);
-}
-
-TEST_F(StringUtilsTest, ReverseNullPointer)
-{
-    StringResult result = string_reverse(nullptr);
-    EXPECT_EQ(result.error, STR_NULL_POINTER);
-}
-
-TEST_F(StringUtilsTest, ReverseSingleCharacter)
-{
-    const char *single = "A";
-    StringResult result = string_reverse(single);
-
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_STREQ(result.data, "A");
-
-    string_result_free(&result);
+    EXPECT_EQ(result, "olleH");
+    EXPECT_EQ(result.length(), original.length());
 }
 
 TEST_F(StringUtilsTest, ReverseEmptyString)
 {
-    const char *empty = "";
-    StringResult result = string_reverse(empty);
-
-    ASSERT_EQ(result.error, STR_OK);
-    ASSERT_NE(result.data, nullptr);
-    EXPECT_STREQ(result.data, "");
-    EXPECT_EQ(result.length, 0);
-
-    string_result_free(&result);
+    EXPECT_THROW(StringUtils::reverse(""), StringException);
 }
 
-TEST_F(StringUtilsTest, ResultFreeNullSafe)
+TEST_F(StringUtilsTest, ReverseSingleCharacter)
 {
-    StringResult result = {STR_OK, nullptr, 0};
-    EXPECT_NO_THROW(string_result_free(&result));
-    EXPECT_NO_THROW(string_result_free(nullptr));
+    std::string original = "A";
+    std::string result = StringUtils::reverse(original);
+
+    EXPECT_EQ(result, "A");
+}
+
+// Uppercase tests
+TEST_F(StringUtilsTest, ToUpperCaseSuccessful)
+{
+    std::string original = "Hello World";
+    std::string result = StringUtils::toUpperCase(original);
+
+    EXPECT_EQ(result, "HELLO WORLD");
+}
+
+TEST_F(StringUtilsTest, ToUpperCaseEmptyString)
+{
+    EXPECT_THROW(StringUtils::toUpperCase(""), StringException);
+}
+
+TEST_F(StringUtilsTest, ToUpperCaseMixedCase)
+{
+    std::string original = "HeLLo WoRLd";
+    std::string result = StringUtils::toUpperCase(original);
+
+    EXPECT_EQ(result, "HELLO WORLD");
+}
+
+// Lowercase tests
+TEST_F(StringUtilsTest, ToLowerCaseSuccessful)
+{
+    std::string original = "Hello World";
+    std::string result = StringUtils::toLowerCase(original);
+
+    EXPECT_EQ(result, "hello world");
+}
+
+TEST_F(StringUtilsTest, ToLowerCaseEmptyString)
+{
+    EXPECT_THROW(StringUtils::toLowerCase(""), StringException);
+}
+
+TEST_F(StringUtilsTest, ToLowerCaseMixedCase)
+{
+    std::string original = "HeLLo WoRLd";
+    std::string result = StringUtils::toLowerCase(original);
+
+    EXPECT_EQ(result, "hello world");
+}
+
+// Integration tests
+TEST_F(StringUtilsTest, ChainedOperations)
+{
+    std::string str = "hello";
+    std::string upper = StringUtils::toUpperCase(str);
+    std::string reversed = StringUtils::reverse(upper);
+
+    EXPECT_EQ(reversed, "OLLEH");
+}
+
+TEST_F(StringUtilsTest, ExceptionHandling)
+{
+    try
+    {
+        StringUtils::duplicate("");
+        FAIL() << "Expected StringException";
+    }
+    catch(const StringException &e)
+    {
+        EXPECT_STREQ(e.what(), "Cannot duplicate empty string");
+    }
 }

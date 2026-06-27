@@ -1,24 +1,19 @@
 cmake_minimum_required(VERSION 3.14)
-project(c-samples VERSION 1.0.0 LANGUAGES C CXX)
+project(cpp-samples VERSION 1.0.0 LANGUAGES CXX)
 
-# Set C standard
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# Set C++ standard for tests
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Code coverage configuration
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
 # Add library sources
 set(SOURCES
-    src/string_utils.c
+    src/string_utils.cpp
 )
 
 # Create library
@@ -54,10 +49,10 @@ add_test(
 )
 
 # Add coverage target
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_custom_target(coverage
         COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-        COMMAND gcov -p -o . ${CMAKE_CURRENT_SOURCE_DIR}/src/string_utils.c
+        COMMAND gcov -p -o . ${CMAKE_CURRENT_SOURCE_DIR}/src/string_utils.cpp
         COMMAND mkdir -p coverage_report
         COMMAND lcov --capture --directory . --output-file coverage_report/coverage.info --include='*/src/*' --exclude='*/test/*'
         COMMAND genhtml coverage_report/coverage.info --output-directory coverage_report/html
