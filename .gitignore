@@ -1,0 +1,38 @@
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+CMakePresets.json
+
+# Build directories
+build/
+Debug/
+Release/
+
+# Test output
+*.gcda
+*.gcno
+*.gcov
+coverage_report/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencies
+_deps/
+
+# Executables
+*.o
+*.a
+*.so
+*.out
+string_utils_test
+
+# Misc
+.clang-format-error
